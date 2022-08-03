@@ -2,6 +2,7 @@ import logging
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import InputFile
 
 import config
 from bot import bot
@@ -160,9 +161,18 @@ async def change_block_user(message: types.Message, state: FSMContext):
                              "А если разблокировать то нажми 0")
 
 
+async def uploading_logs(callback: types.CallbackQuery):
+    logger.debug("Администратор запросил выгрузку логов")
+    file_debug = InputFile("logs/info_debug.log")
+    file_warning = InputFile("logs/err_warning.log")
+    await bot.send_document(chat_id=callback.from_user.id, document=file_debug)
+    await bot.send_document(chat_id=callback.from_user.id, document=file_warning)
+
+        
 def admin_handlers(dp: Dispatcher):
     logger.debug("Запуск регистрации admin хэндлеров (обработчиков)")
     dp.register_message_handler(start_admin, commands='admin')
+    dp.register_callback_query_handler(uploading_logs, text='logs')
     dp.register_callback_query_handler(check_users, text='check_users')
     dp.register_callback_query_handler(change_balance, text='change_user_balance')
     dp.register_callback_query_handler(block_user, text='block_user')
