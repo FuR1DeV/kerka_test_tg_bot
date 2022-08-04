@@ -58,7 +58,9 @@ class Database:
         logger.info('Функция проверки пользователя на наличие в БД')
         with self.connection.cursor() as cursor:
             cursor.execute(
-                f"SELECT * FROM users WHERE user_id = {user_id};"
+                "SELECT * FROM users WHERE user_id = %(user_id)s;", {
+                    'user_id': user_id
+                }
             )
             return cursor.fetchone()
 
@@ -66,8 +68,12 @@ class Database:
         logger.info('Функция добавления пользователя в БД')
         with self.connection.cursor() as cursor:
             cursor.execute(
-                f"INSERT INTO users (user_id, first_name, last_name) VALUES "
-                f"('{user_id}', '{first_name}', '{last_name}');"
+                "INSERT INTO users (user_id, first_name, last_name) "
+                "VALUES (%(user_id)s, %(first_name)s, %(last_name)s);", {
+                    'user_id': user_id,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                }
             )
             self.connection.commit()
 
@@ -83,7 +89,7 @@ class Database:
         logger.info('Функция выгрузки всех пользователей в БД')
         with self.connection.cursor() as cursor:
             cursor.execute(
-                f"SELECT * FROM users"
+                "SELECT * FROM users"
             )
             result = cursor.fetchall()
             return result
@@ -92,7 +98,10 @@ class Database:
         logger.info('Функция просмотра баланса пользователя')
         with self.connection.cursor() as cursor:
             cursor.execute(
-                f"SELECT money FROM users WHERE user_id = {user_id};")
+                "SELECT money FROM users WHERE user_id = %(user_id)s;", {
+                    'user_id': user_id,
+                }
+            )
             result = cursor.fetchmany(1)
             return int(result[0][0])
 
@@ -100,7 +109,10 @@ class Database:
         logger.info('Функция обновления баланса пользователя')
         with self.connection.cursor() as cursor:
             cursor.execute(
-                f"UPDATE users SET money = '{money}' WHERE user_id = {user_id};"
+                "UPDATE users SET money = %(money)s WHERE user_id = %(user_id)s;", {
+                    'money': money,
+                    'user_id': user_id,
+                }
             )
             self.connection.commit()
 
@@ -108,7 +120,12 @@ class Database:
         logger.info('Функция добавления платежа в БД')
         with self.connection.cursor() as cursor:
             cursor.execute(
-                f"INSERT INTO public.check (user_id, money, bill_id) VALUES ('{user_id}', '{money}', '{bill_id}');"
+                "INSERT INTO public.check (user_id, money, bill_id) "
+                "VALUES (%(user_id)s, %(money)s, %(bill_id)s);", {
+                    'user_id': user_id,
+                    'money': money,
+                    'bill_id': bill_id,
+                }
             )
             self.connection.commit()
 
@@ -116,7 +133,9 @@ class Database:
         logger.info('Функция проверки платежа в БД')
         with self.connection.cursor() as cursor:
             cursor.execute(
-                f"SELECT * FROM public.check WHERE bill_id = '{bill_id}';"
+                "SELECT * FROM public.check WHERE bill_id = %(bill_id)s;", {
+                    'bill_id': bill_id,
+                }
             )
             result = cursor.fetchmany(1)
             if not bool(len(result)):
@@ -127,7 +146,9 @@ class Database:
         logger.info('Функция удаления платежа из БД')
         with self.connection.cursor() as cursor:
             cursor.execute(
-                f"DELETE FROM public.check WHERE bill_id = '{bill_id}';"
+                "DELETE FROM public.check WHERE bill_id = %(bill_id)s;", {
+                    'bill_id': bill_id,
+                }
             )
             self.connection.commit()
 
