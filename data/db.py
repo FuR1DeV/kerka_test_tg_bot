@@ -59,7 +59,7 @@ class Database:
         with self.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT * FROM users WHERE user_id = %(user_id)s;", {
-                    'user_id': user_id
+                    'user_id': user_id,
                 }
             )
             return cursor.fetchone()
